@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <!-- ✅ Responsive + safe-area friendly -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <meta name="theme-color" content="#050506" />
   <title>RANG & MALL | Global Venture Holdings</title>
+  
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
@@ -17,12 +19,13 @@
 
   <style>
     /* =========================================================
-       RANG & MALL — HYBRID (FIXED)
-       - Glass tiles (from your reference) + retained internal effects
-       - Tiles open a real portal (click + Enter/Space)
+       RANG & MALL — HYBRID (FULL UPDATED)
+       - Better mobile UX + no clipping + safe-area padding
+       - Glass tiles retained + effects retained
+       - Tiles open portal (click + Enter/Space)
        - Deep link: ?venture=key
        - Accessible dialog + focus trap + Escape close
-       - Perf-safe pointer glow (RAF)
+       - Perf-safe pointer glow (RAF) + disabled on mobile
        - Reduced motion friendly
        ========================================================= */
 
@@ -47,11 +50,9 @@
       --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
       --ease-soft: cubic-bezier(.22,1,.36,1);
 
-      /* Portal clip origin (for a subtle vignette feel even without clip-path) */
       --cx: 50vw;
       --cy: 50vh;
 
-      /* Card pointer glow */
       --x: 50%;
       --y: 50%;
     }
@@ -175,12 +176,12 @@
     @media (max-width: 900px) { .col-4, .col-8 { grid-column: span 12; } }
 
     /* =========================================================
-       GLASS CARD UI (UPDATED to match your reference)
+       GLASS CARD UI
        ========================================================= */
     .card {
       position: relative;
       border: 1px solid var(--border);
-      border-radius: 14px;                 /* reference-like */
+      border-radius: 14px;
       padding: 40px;
       min-height: 360px;
       display: flex;
@@ -191,7 +192,6 @@
       outline: none;
       box-shadow: 0 14px 44px rgba(0,0,0,.60);
 
-      /* Glass background (reference-like) */
       background:
         radial-gradient(600px 400px at 80% -20%, rgba(212,175,55,.07), transparent 60%),
         linear-gradient(180deg, rgba(255,255,255,.040), rgba(255,255,255,.010)),
@@ -215,7 +215,7 @@
       outline-offset: 4px;
     }
 
-    /* Pointer glow (like reference) */
+    /* Pointer glow */
     .card::after {
       content: "";
       position: absolute;
@@ -227,7 +227,7 @@
     }
     .card:hover::after { opacity: 1; }
 
-    /* Keep your internal glow layer too (subtle) */
+    /* Keep internal glow */
     .card-glow {
       position: absolute;
       inset: 0;
@@ -284,14 +284,19 @@
       100% { left: 220%; }
     }
 
+    /* ✅ NO CLIPPING: responsive title sizing + wrap */
     .card h2 {
       position: relative;
       z-index: 2;
       font-family: 'Cinzel', serif;
-      font-size: 34px;
+      font-size: clamp(22px, 4.6vw, 34px);
+      line-height: 1.08;
       margin: 18px 0 10px;
       font-weight: 800;
       letter-spacing: .02em;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
       transition: 0.3s;
     }
     .card p {
@@ -489,7 +494,7 @@
     .labs-card:hover .labs-circuit { opacity: 1; }
 
     /* =========================================================
-       PORTAL (FIXED: opens, closes, deep-links, a11y)
+       PORTAL
        ========================================================= */
     .portal {
       position: fixed;
@@ -504,7 +509,6 @@
     }
     .portal.active { visibility: visible; opacity: 1; }
 
-    /* subtle vignette */
     .portal::before{
       content:"";
       position:absolute; inset:0;
@@ -527,6 +531,7 @@
       flex-direction: column;
       justify-content: flex-end;
       padding: 60px 8vw;
+      padding-bottom: calc(60px + env(safe-area-inset-bottom));
     }
 
     .p-close {
@@ -550,8 +555,8 @@
     .p-close:focus-visible{ outline: 2px solid rgba(212,175,55,0.7); outline-offset: 4px; }
 
     .p-tag { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); margin-bottom: 18px; display: inline-block; letter-spacing: .35em; text-transform: uppercase; }
-    .p-title { font-family: 'Cinzel', serif; font-size: clamp(40px, 9vw, 110px); line-height: 0.9; margin: 0 0 24px; color: #fff; letter-spacing: .02em; }
-    .p-desc { font-size: clamp(16px, 1.8vw, 24px); line-height: 1.6; color: rgba(245,247,250,.74); font-weight: 200; max-width: 880px; }
+    .p-title { font-family: 'Cinzel', serif; font-size: clamp(38px, 9vw, 110px); line-height: 0.9; margin: 0 0 24px; color: #fff; letter-spacing: .02em; }
+    .p-desc { font-size: clamp(15px, 1.8vw, 24px); line-height: 1.6; color: rgba(245,247,250,.74); font-weight: 200; max-width: 880px; }
     .p-desc strong { color: #fff; font-weight: 800; }
 
     .p-actions{
@@ -600,6 +605,7 @@
       background: #000;
       border-top: 1px solid rgba(255,255,255,0.06);
       padding: 90px 24px;
+      padding-bottom: calc(90px + env(safe-area-inset-bottom));
     }
     .footer-inner {
       max-width: 1800px;
@@ -609,7 +615,7 @@
       gap: 42px;
     }
     @media (min-width: 860px) {
-      .site-footer { padding: 90px 64px; }
+      .site-footer { padding: 90px 64px; padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
       .footer-inner { grid-template-columns: repeat(4, 1fr); gap: 80px; }
     }
     .footer-title {
@@ -646,6 +652,40 @@
       transition: color .3s var(--ease);
     }
     .footer-link:hover { color: #fff; }
+
+    /* =========================================================
+       ✅ MOBILE UX FIXES (THE IMPORTANT PART)
+       ========================================================= */
+    @media (max-width: 640px){
+      .view-main{ padding: calc(96px + env(safe-area-inset-top)) 14px 70px; }
+      .site-header{
+        padding: calc(16px + env(safe-area-inset-top)) 16px 12px;
+      }
+      .brand h1{ font-size: 28px; }
+
+      .grid{ gap: 14px; }
+      .card{
+        padding: 22px;
+        min-height: 260px;
+        border-radius: 14px;
+      }
+      .card p{ font-size: 13px; max-width: 100%; }
+
+      /* no hover on phones: show CTA line */
+      .card-action{
+        opacity: 1;
+        transform: none;
+      }
+
+      .p-close{
+        top: calc(14px + env(safe-area-inset-top));
+        right: 14px;
+      }
+      .portal-content{
+        padding: 26px 18px;
+        padding-bottom: calc(26px + env(safe-area-inset-bottom));
+      }
+    }
 
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
@@ -820,13 +860,13 @@
         <div>
           <h4 class="footer-title">R&amp;M</h4>
           <div class="footer-small">© <span id="year"></span> GLOBAL VENTURE HOLDINGS</div>
+          <div class="footer-small">© <span id="year"></span> Known as FreedomLabs / TogetherLabs </div>
         </div>
 
         <div>
           <div class="footer-kicker">Locations</div>
-          <a class="footer-link" href="#">London Terminal</a>
-          <a class="footer-link" href="#">Dubai Core</a>
-          <a class="footer-link" href="#">Singapore Hub</a>
+          <a class="footer-link" href="#">Visakhapatnam Hub</a>
+          <a class="footer-link" href="#">United States Core</a>
         </div>
 
         <div>
@@ -840,7 +880,7 @@
           <div class="footer-kicker">Connect</div>
           <a class="footer-link" href="#">LinkedIn</a>
           <a class="footer-link" href="#">Twitter</a>
-          <div style="margin-top:18px;" class="footer-small">founders@rangandmall.com</div>
+          <div style="margin-top:18px;" class="footer-small">founders@freedomlabs.in</div>
         </div>
       </div>
     </footer>
@@ -872,25 +912,28 @@
       document.getElementById("year").textContent = new Date().getFullYear();
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
 
-      // ========= POINTER GLOW (PERF-SAFE) =========
+      // ========= POINTER GLOW (PERF-SAFE) — ONLY ON DESKTOP =========
       const grid = document.getElementById("main-grid");
       let glowRAF = 0;
       let lastMove = null;
 
-      grid.addEventListener("mousemove", (e) => {
-        lastMove = e;
-        if (glowRAF) return;
-        glowRAF = requestAnimationFrame(() => {
-          glowRAF = 0;
-          const card = lastMove?.target?.closest?.(".card");
-          if (!card) return;
-          const rect = card.getBoundingClientRect();
-          const x = ((lastMove.clientX - rect.left) / rect.width) * 100;
-          const y = ((lastMove.clientY - rect.top) / rect.height) * 100;
-          card.style.setProperty("--x", x.toFixed(2) + "%");
-          card.style.setProperty("--y", y.toFixed(2) + "%");
-        });
-      }, { passive: true });
+      const finePointer = window.matchMedia?.("(hover:hover) and (pointer:fine)")?.matches ?? false;
+      if (finePointer) {
+        grid.addEventListener("mousemove", (e) => {
+          lastMove = e;
+          if (glowRAF) return;
+          glowRAF = requestAnimationFrame(() => {
+            glowRAF = 0;
+            const card = lastMove?.target?.closest?.(".card");
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            const x = ((lastMove.clientX - rect.left) / rect.width) * 100;
+            const y = ((lastMove.clientY - rect.top) / rect.height) * 100;
+            card.style.setProperty("--x", x.toFixed(2) + "%");
+            card.style.setProperty("--y", y.toFixed(2) + "%");
+          });
+        }, { passive: true });
+      }
 
       // ========= PORTAL DATA =========
       const portalData = {
@@ -1038,13 +1081,8 @@
           const w = window.innerWidth;
           const h = window.innerHeight;
 
-          if (this.type === "scan") {
+          if (this.type === "scan" || this.type === "data") {
             if (this.y > h + 80) this.reset();
-            return;
-          }
-
-          if (this.type === "data") {
-            if (this.y > h + 40) this.reset();
             return;
           }
 
@@ -1054,13 +1092,7 @@
         }
 
         draw() {
-          if (this.type === "scan") {
-            ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
-            ctx.fillRect(0, this.y, window.innerWidth, 1);
-            return;
-          }
-
-          if (this.type === "data") {
+          if (this.type === "scan" || this.type === "data") {
             ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
             ctx.fillRect(0, this.y, window.innerWidth, 1);
             return;
@@ -1068,7 +1100,6 @@
 
           ctx.beginPath();
 
-          // tint per type (still subtle)
           let col = `rgba(255,255,255,${this.alpha})`;
           if (this.type === "pulse") col = `rgba(244,63,94,${this.alpha})`;
           if (this.type === "mist") col = `rgba(168,85,247,${this.alpha})`;
@@ -1150,7 +1181,6 @@
 
         lastFocusedEl = document.activeElement;
 
-        // set vignette origin
         const x = (typeof cx === "number" ? cx : window.innerWidth * 0.55);
         const y = (typeof cy === "number" ? cy : window.innerHeight * 0.35);
         document.documentElement.style.setProperty("--cx", x + "px");
@@ -1162,21 +1192,17 @@
         pTitle.textContent = data.title;
         pDesc.innerHTML = data.desc;
 
-        // Primary CTA
-        pBtn.href = `mailto:founders@rangandmall.com?subject=${encodeURIComponent("Inquiry: " + data.title)}`;
+        pBtn.href = `mailto:founders@freedomlabs.in?subject=${encodeURIComponent("Inquiry: " + data.title)}`;
         pBtn.setAttribute("aria-label", `Initiate inquiry for ${data.title}`);
 
-        // Activate
         portal.classList.add("active");
         portal.setAttribute("aria-hidden", "false");
         document.body.classList.add("portal-active");
         setUrlVenture(data.key);
 
-        // Particles
         buildParticles(data.type);
         startAnimation();
 
-        // focus
         closeBtn.focus();
       }
 
@@ -1242,7 +1268,7 @@
         }
       }
 
-      // ========= WIRE UP TILES (FIX: they now open) =========
+      // ========= WIRE UP TILES =========
       function attachTileHandlers() {
         const cards = document.querySelectorAll(".card[data-portal]");
         for (const card of cards) {
@@ -1270,9 +1296,8 @@
       closeBtn.addEventListener("click", closePortal);
       pCopy.addEventListener("click", copyDeepLink);
 
-      // Click outside content to close (simple backdrop behavior)
+      // Click outside content closes
       portal.addEventListener("click", (e) => {
-        // only if they click the empty shell / canvas area (not inside controls/text)
         const content = document.querySelector(".portal-content");
         if (!content) return;
         if (!content.contains(e.target) && e.target !== closeBtn) closePortal();
