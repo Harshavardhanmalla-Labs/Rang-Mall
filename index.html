@@ -3,31 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#050506" />
   <title>RANG & MALL | Global Venture Holdings</title>
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
   <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
-  <meta name="theme-color" content="#020202" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@200;500;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
-    rel="stylesheet"
-  >
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;800&family=Manrope:wght@200;300;400;500;600;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
-    /* --- DESIGN SYSTEM --- */
+    /* =========================================================
+       RANG & MALL — HYBRID (FIXED)
+       - Glass tiles (from your reference) + retained internal effects
+       - Tiles open a real portal (click + Enter/Space)
+       - Deep link: ?venture=key
+       - Accessible dialog + focus trap + Escape close
+       - Perf-safe pointer glow (RAF)
+       - Reduced motion friendly
+       ========================================================= */
+
     :root {
-      --bg: #030303;
-      --card-bg: #090909;
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #ffffff;
+      --bg: #050506;
+      --panel: #0b0d10;
+      --text: rgba(245, 247, 250, 0.92);
+      --muted: rgba(245, 247, 250, 0.60);
+      --faint: rgba(245, 247, 250, 0.38);
+      --border: rgba(255, 255, 255, 0.10);
+      --border-strong: rgba(255, 255, 255, 0.18);
       --accent: #d4af37;
 
-      /* CHROMATIC PALETTE */
+      /* Palettes */
       --grad-nature: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
       --grad-tech: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
       --grad-rental: linear-gradient(135deg, #fbbf24 0%, #78350f 100%);
@@ -36,16 +45,31 @@
       --grad-hr: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
 
       --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --ease-soft: cubic-bezier(.22,1,.36,1);
+
+      /* Portal clip origin (for a subtle vignette feel even without clip-path) */
+      --cx: 50vw;
+      --cy: 50vh;
+
+      /* Card pointer glow */
+      --x: 50%;
+      --y: 50%;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background: var(--bg);
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(212,175,55,.08), transparent 60%),
+        radial-gradient(900px 650px at 80% 10%, rgba(96,165,250,.05), transparent 60%),
+        radial-gradient(900px 650px at 10% 30%, rgba(192,132,252,.04), transparent 65%),
+        var(--bg);
       color: var(--text);
-      font-family: 'Manrope', sans-serif;
+      font-family: "Manrope", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
     }
 
     /* Cinematic Grain Overlay */
@@ -56,67 +80,276 @@
       z-index: 10000;
       opacity: 0.04;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
     }
 
-    /* --- HOME VIEW --- */
+    /* =========================================================
+       HEADER
+       ========================================================= */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      padding: 40px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      mix-blend-mode: difference;
+      pointer-events: none;
+    }
+    .site-header a, .site-header button { pointer-events: auto; }
+    .brand a { text-decoration: none; color: #fff; display: block; }
+    .brand h1 {
+      font-family: "Cinzel", serif;
+      font-size: 34px;
+      margin: 0;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+    }
+    .brand .sub {
+      display: block;
+      margin-top: 6px;
+      font-size: 9px;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      opacity: .70;
+      transition: color .5s var(--ease);
+    }
+    .brand a:hover .sub { color: var(--accent); }
+
+    .nav {
+      display: none;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .nav a {
+      color: rgba(255,255,255,.90);
+      text-decoration: none;
+      font-size: 10px;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      font-weight: 300;
+      transition: color .4s var(--ease);
+    }
+    .nav a:hover { color: var(--accent); }
+    @media (min-width: 860px) { .nav { display: flex; } }
+
+    /* =========================================================
+       MAIN
+       ========================================================= */
     .view-main {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 60px 24px;
+      padding: 150px 24px 80px;
       transition: transform 0.8s var(--ease), opacity 0.5s;
     }
     body.portal-active .view-main {
-      transform: scale(0.9) translateY(-100px);
+      transform: scale(0.92) translateY(-80px);
       opacity: 0;
       pointer-events: none;
     }
 
-    header { text-align: center; margin-bottom: 80px; }
-    .logo-wrap { display: flex; justify-content: center; margin-bottom: 30px; }
-    .logo-img { height: 110px; width: auto; filter: drop-shadow(0 0 30px rgba(255,255,255,0.1)); }
-
-    h1 {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(32px, 6vw, 64px);
-      margin: 0;
-      letter-spacing: 0.05em;
-      font-weight: 700;
-      background: linear-gradient(to bottom, #fff, #777);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .section-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 22px;
+      padding-left: 2px;
     }
-    .tagline {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--accent);
-      letter-spacing: 0.4em;
+    .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); opacity: .95; }
+    .kicker-text {
+      font-size: 12px;
+      letter-spacing: .4em;
       text-transform: uppercase;
-      margin-top: 15px;
-      opacity: 0.8;
+      color: rgba(245,247,250,.40);
+      font-weight: 400;
     }
 
-    /* --- THE GRID --- */
     .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
     .col-4 { grid-column: span 4; }
     .col-8 { grid-column: span 8; }
     @media (max-width: 900px) { .col-4, .col-8 { grid-column: span 12; } }
 
-    /* --- CARD UI --- */
+    /* =========================================================
+       GLASS CARD UI (UPDATED to match your reference)
+       ========================================================= */
     .card {
-      background: var(--card-bg);
+      position: relative;
       border: 1px solid var(--border);
+      border-radius: 14px;                 /* reference-like */
       padding: 40px;
+      min-height: 360px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 340px;
-      border-radius: 4px;
       cursor: pointer;
+      overflow: hidden;
+      outline: none;
+      box-shadow: 0 14px 44px rgba(0,0,0,.60);
+
+      /* Glass background (reference-like) */
+      background:
+        radial-gradient(600px 400px at 80% -20%, rgba(212,175,55,.07), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.040), rgba(255,255,255,.010)),
+        rgba(11, 13, 16, 0.58);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
+      transition: transform .45s var(--ease-soft), border-color .35s var(--ease), background .35s var(--ease);
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,255,255,.22);
+      background:
+        radial-gradient(700px 460px at 70% -30%, rgba(212,175,55,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.012)),
+        rgba(11, 13, 16, 0.58);
+    }
+    .card:focus-visible{
+      outline: 2px solid rgba(212,175,55,0.72);
+      outline-offset: 4px;
+    }
+
+    /* Pointer glow (like reference) */
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .35s var(--ease);
+      background: radial-gradient(520px circle at var(--x, 50%) var(--y, 50%), rgba(245,247,250,.12), transparent 58%);
+    }
+    .card:hover::after { opacity: 1; }
+
+    /* Keep your internal glow layer too (subtle) */
+    .card-glow {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        420px circle at var(--x, 50%) var(--y, 50%),
+        rgba(255,255,255,0.05),
+        transparent 55%
+      );
+    }
+
+    .card-meta {
+      position: relative;
+      z-index: 2;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: rgba(245,247,250,.42);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: .18em;
+      gap: 12px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-family: "Space Mono", monospace;
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(212,175,55,.95);
+      border: 1px solid rgba(212,175,55,.25);
+      background: rgba(212,175,55,.08);
       position: relative;
       overflow: hidden;
-      transition: 0.4s var(--ease);
-      outline: none;
+      white-space: nowrap;
     }
+    .badge::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -120%;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: badgeScan 3s linear infinite;
+      opacity: .7;
+    }
+    @keyframes badgeScan {
+      0% { left: -120%; }
+      100% { left: 220%; }
+    }
+
+    .card h2 {
+      position: relative;
+      z-index: 2;
+      font-family: 'Cinzel', serif;
+      font-size: 34px;
+      margin: 18px 0 10px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      transition: 0.3s;
+    }
+    .card p {
+      position: relative;
+      z-index: 2;
+      font-size: 14px;
+      color: rgba(245,247,250,.62);
+      line-height: 1.7;
+      margin: 0;
+      max-width: 92%;
+      font-weight: 300;
+    }
+
+    .card-action {
+      position: relative;
+      z-index: 2;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.06);
+
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: rgba(212,175,55,.95);
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity .25s var(--ease), transform .25s var(--ease);
+      white-space: nowrap;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .card:hover .card-action { opacity: 1; transform: translateX(0); }
+
+    /* TITLES WITH GRADIENTS + ANIMATIONS (retained) */
+    .title-nature, .title-tech, .title-rental, .title-stealth, .title-pulse, .title-hr {
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% 200%;
+      animation: gradientFlow 8s ease infinite;
+    }
+    .title-nature { background-image: var(--grad-nature); }
+    .title-tech   { background-image: var(--grad-tech); animation-duration: 6s; }
+    .title-rental { background-image: var(--grad-rental); animation-duration: 7s; }
+    .title-stealth{ background-image: var(--grad-stealth); animation-duration: 9s; }
+    .title-pulse  { background-image: var(--grad-pulse); animation-duration: 5s; }
+    .title-hr     { background-image: var(--grad-hr); animation-duration: 10s; }
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .redacted { background: rgba(245,247,250,.14); color: transparent; border-radius: 3px; padding: 0 4px; user-select: none; }
+    .card:hover .redacted { background: var(--accent); opacity: 0.55; }
+
+    /* ========= Special Card Effects (retained) ========= */
     .card::before {
       content: '';
       position: absolute;
@@ -126,167 +359,17 @@
       pointer-events: none;
       z-index: 1;
     }
-    .card:hover {
-      border-color: rgba(255,255,255,0.2);
-      transform: translateY(-8px);
-      background: #111;
-    }
-    .card:hover::before {
-      opacity: 0.15;
-    }
-    .card:focus-visible{
-      outline: 2px solid rgba(212,175,55,0.7);
-      outline-offset: 4px;
-    }
+    .card:hover::before { opacity: 0.15; }
 
-    /* Mouse Glow Effect */
-    .card-glow {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background: radial-gradient(
-        400px circle at var(--x, 50%) var(--y, 50%),
-        rgba(255,255,255,0.05),
-        transparent 50%
-      );
-    }
-
-    .card-meta {
-      position: relative;
-      z-index: 2;
-      font-family: 'Space Mono';
-      font-size: 10px;
-      text-transform: uppercase;
-      color: #555;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .badge {
-      padding: 4px 12px;
-      border-radius: 100px;
-      background: rgba(255,255,255,0.05);
-      color: #888;
-      font-weight: 700;
-      transition: 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .badge::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: -100%;
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-      animation: badgeScan 3s linear infinite;
-    }
-    @keyframes badgeScan {
-      0% { left: -100%; }
-      100% { left: 200%; }
-    }
-
-    .card h2 {
-      position: relative;
-      z-index: 2;
-      font-family: 'Cinzel', serif;
-      font-size: 32px;
-      margin: 20px 0 10px;
-      font-weight: 700;
-      transition: 0.3s;
-    }
-    .card p {
-      position: relative;
-      z-index: 2;
-      font-size: 14px;
-      color: #888;
-      line-height: 1.7;
-      margin: 0;
-      max-width: 90%;
-      font-weight: 300;
-    }
-
-    .card-action {
-      position: relative;
-      z-index: 2;
-      margin-top: auto;
-      font-family: 'Space Mono';
-      font-size: 10px;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      opacity: 0.4;
-      transition: 0.3s;
-    }
-    .card:hover .card-action { opacity: 1; transform: translateX(10px); }
-
-    /* TITLES WITH GRADIENTS + ANIMATIONS */
-    .title-nature { 
-      background: var(--grad-nature); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradientFlow 8s ease infinite;
-    }
-    .title-tech { 
-      background: var(--grad-tech); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradientFlow 6s ease infinite;
-    }
-    .title-rental { 
-      background: var(--grad-rental); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradientFlow 7s ease infinite;
-    }
-    .title-stealth { 
-      background: var(--grad-stealth); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradientFlow 9s ease infinite;
-    }
-    .title-pulse { 
-      background: var(--grad-pulse); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradientFlow 5s ease infinite;
-    }
-    .title-hr { 
-      background: var(--grad-hr); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-size: 200% 200%;
-      animation: gradientFlow 10s ease infinite;
-    }
-
-    @keyframes gradientFlow {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-
-    .redacted { background: #333; color: transparent; border-radius: 2px; padding: 0 4px; user-select: none; }
-    .card:hover .redacted { background: var(--accent); opacity: 0.5; }
-
-    /* Special Card Effects */
     .sanctuary-card::before { background: var(--grad-nature); }
     .sanctuary-leaves {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.6s;
-      background-image: 
-        radial-gradient(2px 2px at 20% 30%, rgba(16,185,129,0.3), transparent),
-        radial-gradient(2px 2px at 60% 70%, rgba(16,185,129,0.2), transparent),
-        radial-gradient(1px 1px at 50% 50%, rgba(16,185,129,0.4), transparent),
-        radial-gradient(2px 2px at 80% 10%, rgba(16,185,129,0.3), transparent);
+      position: absolute; inset: 0; z-index: 1;
+      opacity: 0; transition: opacity 0.6s var(--ease);
+      background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(16,185,129,0.32), transparent),
+        radial-gradient(2px 2px at 60% 70%, rgba(16,185,129,0.22), transparent),
+        radial-gradient(1px 1px at 50% 50%, rgba(16,185,129,0.45), transparent),
+        radial-gradient(2px 2px at 80% 10%, rgba(16,185,129,0.30), transparent);
       background-size: 200% 200%;
       animation: leafFloat 20s ease-in-out infinite;
       pointer-events: none;
@@ -299,14 +382,11 @@
 
     .rental-card::before { background: var(--grad-rental); }
     .rental-grid {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.6s;
-      background-image: 
-        linear-gradient(rgba(251,191,36,0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(251,191,36,0.1) 1px, transparent 1px);
+      position: absolute; inset: 0; z-index: 1;
+      opacity: 0; transition: opacity 0.6s var(--ease);
+      background-image:
+        linear-gradient(rgba(251,191,36,0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251,191,36,0.12) 1px, transparent 1px);
       background-size: 50px 50px;
       pointer-events: none;
     }
@@ -314,12 +394,9 @@
 
     .digitailor-card::before { background: var(--grad-hr); }
     .digitailor-scan {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(248,250,252,0.8), transparent);
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(248,250,252,0.85), transparent);
       opacity: 0;
       animation: scanLine 4s ease-in-out infinite;
       pointer-events: none;
@@ -334,33 +411,25 @@
 
     .gulgul-card::before { background: var(--grad-tech); }
     .gulgul-dots {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.6s;
-      background-image: 
-        radial-gradient(circle, rgba(59,130,246,0.4) 1px, transparent 1px);
+      position: absolute; inset: 0; z-index: 1;
+      opacity: 0; transition: opacity 0.6s var(--ease);
+      background-image: radial-gradient(circle, rgba(59,130,246,0.45) 1px, transparent 1px);
       background-size: 40px 40px;
       animation: dotPulse 3s ease-in-out infinite;
       pointer-events: none;
     }
     .gulgul-card:hover .gulgul-dots { opacity: 1; }
     @keyframes dotPulse {
-      0%, 100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.05); }
+      0%, 100% { opacity: 0.32; transform: scale(1); }
+      50% { opacity: 0.62; transform: scale(1.05); }
     }
 
     .edplus-card::before { background: var(--grad-tech); }
     .edplus-wave {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 100px;
-      opacity: 0;
-      transition: opacity 0.6s;
-      background: linear-gradient(180deg, transparent, rgba(59,130,246,0.1));
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 120px;
+      opacity: 0; transition: opacity 0.6s var(--ease);
+      background: linear-gradient(180deg, transparent, rgba(59,130,246,0.12));
       pointer-events: none;
       z-index: 1;
     }
@@ -368,43 +437,34 @@
 
     .aura-card::before { background: var(--grad-stealth); }
     .aura-glow {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 300px;
-      height: 300px;
+      position: absolute; top: 50%; left: 50%;
+      width: 320px; height: 320px;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(168,85,247,0.3), transparent 70%);
-      opacity: 0;
-      transition: opacity 0.6s;
+      background: radial-gradient(circle, rgba(168,85,247,0.32), transparent 70%);
+      opacity: 0; transition: opacity 0.6s var(--ease);
       animation: aurapulse 4s ease-in-out infinite;
       pointer-events: none;
       z-index: 1;
     }
     .aura-card:hover .aura-glow { opacity: 1; }
     @keyframes aurapulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(0.8); }
-      50% { transform: translate(-50%, -50%) scale(1.2); }
+      0%, 100% { transform: translate(-50%, -50%) scale(0.82); }
+      50% { transform: translate(-50%, -50%) scale(1.18); }
     }
 
     .pulse-card::before { background: var(--grad-pulse); }
     .pulse-rings {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 200px;
-      height: 200px;
+      position: absolute; top: 50%; left: 50%;
+      width: 220px; height: 220px;
       transform: translate(-50%, -50%);
-      opacity: 0;
-      transition: opacity 0.6s;
+      opacity: 0; transition: opacity 0.6s var(--ease);
       pointer-events: none;
       z-index: 1;
     }
     .pulse-ring {
-      position: absolute;
-      inset: 0;
-      border: 2px solid rgba(244,63,94,0.5);
+      position: absolute; inset: 0;
+      border: 2px solid rgba(244,63,94,0.50);
       border-radius: 50%;
       animation: ringExpand 3s ease-out infinite;
     }
@@ -418,20 +478,19 @@
 
     .labs-card::before { background: var(--grad-stealth); }
     .labs-circuit {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 0.6s;
-      background-image: 
-        linear-gradient(90deg, transparent 49%, rgba(168,85,247,0.3) 50%, transparent 51%),
-        linear-gradient(0deg, transparent 49%, rgba(168,85,247,0.3) 50%, transparent 51%);
+      position: absolute; inset: 0; z-index: 1;
+      opacity: 0; transition: opacity 0.6s var(--ease);
+      background-image:
+        linear-gradient(90deg, transparent 49%, rgba(168,85,247,0.30) 50%, transparent 51%),
+        linear-gradient(0deg, transparent 49%, rgba(168,85,247,0.30) 50%, transparent 51%);
       background-size: 100px 100px;
       pointer-events: none;
     }
     .labs-card:hover .labs-circuit { opacity: 1; }
 
-    /* --- PORTAL SYSTEM --- */
+    /* =========================================================
+       PORTAL (FIXED: opens, closes, deep-links, a11y)
+       ========================================================= */
     .portal {
       position: fixed;
       inset: 0;
@@ -439,13 +498,26 @@
       background: #000;
       visibility: hidden;
       opacity: 0;
-      transition: opacity 0.6s var(--ease), visibility 0.6s;
+      transition: opacity 0.55s var(--ease), visibility 0.55s;
       display: flex;
       flex-direction: column;
     }
     .portal.active { visibility: visible; opacity: 1; }
 
+    /* subtle vignette */
+    .portal::before{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 700px at var(--cx) var(--cy), rgba(255,255,255,.08), transparent 60%),
+        radial-gradient(1100px 800px at 50% 120%, rgba(212,175,55,.10), transparent 65%);
+      opacity:.55;
+      z-index:0;
+    }
+
     #portal-canvas { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .p-atmosphere { position: absolute; inset: 0; z-index: 0; opacity: 0.60; transition: 1s; }
 
     .portal-content {
       position: relative;
@@ -461,53 +533,58 @@
       position: fixed;
       top: 40px;
       right: 40px;
-      background: none;
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.20);
       color: #fff;
-      padding: 12px 24px;
-      border-radius: 50px;
+      padding: 12px 18px;
+      border-radius: 999px;
       cursor: pointer;
       z-index: 10;
-      font-family: 'Space Mono';
+      font-family: 'Space Mono', monospace;
       text-transform: uppercase;
       font-size: 11px;
       letter-spacing: 2px;
-      transition: 0.3s;
+      transition: 0.25s var(--ease);
     }
     .p-close:hover { background: #fff; color: #000; }
-    .p-close:focus-visible{
-      outline: 2px solid rgba(212,175,55,0.7);
-      outline-offset: 4px;
+    .p-close:focus-visible{ outline: 2px solid rgba(212,175,55,0.7); outline-offset: 4px; }
+
+    .p-tag { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); margin-bottom: 18px; display: inline-block; letter-spacing: .35em; text-transform: uppercase; }
+    .p-title { font-family: 'Cinzel', serif; font-size: clamp(40px, 9vw, 110px); line-height: 0.9; margin: 0 0 24px; color: #fff; letter-spacing: .02em; }
+    .p-desc { font-size: clamp(16px, 1.8vw, 24px); line-height: 1.6; color: rgba(245,247,250,.74); font-weight: 200; max-width: 880px; }
+    .p-desc strong { color: #fff; font-weight: 800; }
+
+    .p-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top: 34px;
+      align-items:center;
     }
-
-    .p-tag { font-family: 'Space Mono'; font-size: 12px; color: var(--accent); margin-bottom: 20px; display: block; letter-spacing: 2px; }
-    .p-title { font-family: 'Cinzel', serif; font-size: clamp(40px, 10vw, 120px); line-height: 0.9; margin: 0 0 30px; }
-
-    .p-desc { font-size: clamp(16px, 1.8vw, 24px); line-height: 1.6; color: #ccc; font-weight: 200; max-width: 800px; }
-    .p-desc strong { color: #fff; font-weight: 700; }
 
     .p-btn {
-      display: inline-block;
-      margin-top: 50px;
-      padding: 22px 50px;
-      background: #fff;
-      color: #000;
+      display: inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(245,247,250,.92);
       text-decoration: none;
-      font-weight: 800;
-      font-family: 'Space Mono';
+      font-family: 'Space Mono', monospace;
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      transition: 0.3s;
+      letter-spacing: .16em;
+      transition: 0.2s var(--ease);
+      cursor: pointer;
     }
-    .p-btn:hover { background: var(--accent); transform: translateY(-5px); }
-    .p-btn:focus-visible{
-      outline: 2px solid rgba(212,175,55,0.7);
-      outline-offset: 4px;
-    }
+    .p-btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.28); }
+    .p-btn.primary { background: #fff; color: #000; border-color: #fff; }
+    .p-btn.primary:hover { background: var(--accent); border-color: var(--accent); }
+    .p-btn:focus-visible{ outline: 2px solid rgba(212,175,55,0.7); outline-offset: 4px; }
 
     /* Portal Atmospheres */
-    .p-atmosphere { position: absolute; inset: 0; z-index: 0; opacity: 0.5; transition: 1s; }
     .theme-nature .p-atmosphere  { background: radial-gradient(circle at 50% 100%, #064e3b, transparent 80%); }
     .theme-tech .p-atmosphere    { background: radial-gradient(circle at 50% 100%, #0c4a6e, transparent 80%); }
     .theme-stealth .p-atmosphere { background: radial-gradient(circle at 50% 100%, #2e1065, transparent 80%); }
@@ -515,35 +592,102 @@
     .theme-rental .p-atmosphere  { background: radial-gradient(circle at 50% 100%, #78350f, transparent 80%); }
     .theme-hr .p-atmosphere      { background: radial-gradient(circle at 50% 100%, #94a3b8, transparent 80%); }
 
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+    .site-footer {
+      margin-top: 90px;
+      background: #000;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 90px 24px;
+    }
+    .footer-inner {
+      max-width: 1800px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 42px;
+    }
+    @media (min-width: 860px) {
+      .site-footer { padding: 90px 64px; }
+      .footer-inner { grid-template-columns: repeat(4, 1fr); gap: 80px; }
+    }
+    .footer-title {
+      font-family: "Cinzel", serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 18px;
+      color: #fff;
+    }
+    .footer-small {
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(245,247,250,.35);
+    }
+    .footer-kicker {
+      font-size: 10px;
+      letter-spacing: .20em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: .95;
+      margin-bottom: 10px;
+      font-family: "Manrope", sans-serif;
+    }
+    .footer-link {
+      display: block;
+      color: rgba(245,247,250,.55);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: .02em;
+      font-weight: 300;
+      margin-top: 10px;
+      transition: color .3s var(--ease);
+    }
+    .footer-link:hover { color: #fff; }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
       .card, .view-main, .portal { transition: none !important; }
       .card:hover { transform: none; }
       .p-btn:hover { transform: none; }
       .sanctuary-leaves, .gulgul-dots, .digitailor-scan, .pulse-rings,
-      .title-nature, .title-tech, .title-rental, .title-stealth, 
+      .title-nature, .title-tech, .title-rental, .title-stealth,
       .title-pulse, .title-hr, .badge::after { animation: none !important; }
+      .card::after { display: none; }
     }
   </style>
 </head>
 
 <body>
-  <div class="noise"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header" aria-label="Rang & Mall navigation">
+    <div class="brand">
+      <a href="#collection">
+        <h1>R&amp;M</h1>
+        <span class="sub">Global Ventures</span>
+      </a>
+    </div>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#collection">Portfolio</a>
+      <a href="#partnership">Philosophy</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
 
   <main class="view-main">
-    <header>
-      <div class="logo-wrap">
-        <svg class="logo-img" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-          <text x="100" y="60" font-family="Cinzel, serif" font-size="48" font-weight="700" fill="#d4af37" text-anchor="middle">R&M</text>
-        </svg>
-      </div>
-      <h1>RANG & MALL</h1>
-      <div class="tagline">Global Venture Operations</div>
-    </header>
+    <div id="collection" class="section-kicker" aria-label="The Collection">
+      <span class="dot"></span>
+      <span class="kicker-text">The Collection</span>
+    </div>
 
     <div class="grid" id="main-grid">
       <!-- 1. THE SANCTUARY -->
-      <div class="card col-8 sanctuary-card" role="button" tabindex="0" data-portal="nature">
+      <div class="card col-8 sanctuary-card" role="button" tabindex="0" data-portal="nature" aria-label="Open The Sanctuary portal">
         <div class="card-glow"></div>
         <div class="sanctuary-leaves"></div>
         <div class="card-meta">REAL ESTATE <span class="badge">PLANNING</span></div>
@@ -551,11 +695,14 @@
           <h2 class="title-nature">The Sanctuary</h2>
           <p>Mesmerizing villa communities where architecture lives in harmony with nature. Sustainable luxury for the global citizen.</p>
         </div>
-        <div class="card-action">Enter Living Environment →</div>
+        <div class="card-action">
+          <span>Enter Living Environment →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">NATURE</span>
+        </div>
       </div>
 
       <!-- 2. RENTAL COMMUNITIES -->
-      <div class="card col-4 rental-card" role="button" tabindex="0" data-portal="rental">
+      <div class="card col-4 rental-card" role="button" tabindex="0" data-portal="rental" aria-label="Open Rental Communities portal">
         <div class="card-glow"></div>
         <div class="rental-grid"></div>
         <div class="card-meta">FINTECH <span class="badge">REVENUE</span></div>
@@ -563,11 +710,14 @@
           <h2 class="title-rental">Rental Communities</h2>
           <p>The global financial ledger for property management and cross-border payments.</p>
         </div>
-        <div class="card-action">View Financials →</div>
+        <div class="card-action">
+          <span>View Financials →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">RENTAL</span>
+        </div>
       </div>
 
       <!-- 3. DIGITAILOR -->
-      <div class="card col-4 digitailor-card" role="button" tabindex="0" data-portal="digitailor">
+      <div class="card col-4 digitailor-card" role="button" tabindex="0" data-portal="digitailor" aria-label="Open Digitailor portal">
         <div class="card-glow"></div>
         <div class="digitailor-scan"></div>
         <div class="card-meta">HR TECH <span class="badge">GROWTH</span></div>
@@ -575,11 +725,14 @@
           <h2 class="title-hr">Digitailor</h2>
           <p>AI-powered career optimization. Reconstructing identities to bypass global ATS filters.</p>
         </div>
-        <div class="card-action">Deploy AI →</div>
+        <div class="card-action">
+          <span>Deploy AI →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">HR</span>
+        </div>
       </div>
 
       <!-- 4. GULGUL -->
-      <div class="card col-4 gulgul-card" role="button" tabindex="0" data-portal="gulgul">
+      <div class="card col-4 gulgul-card" role="button" tabindex="0" data-portal="gulgul" aria-label="Open Gulgul portal">
         <div class="card-glow"></div>
         <div class="gulgul-dots"></div>
         <div class="card-meta">LOGISTICS <span class="badge">BETA</span></div>
@@ -587,11 +740,14 @@
           <h2 class="title-tech">Gulgul</h2>
           <p>AI density engine optimizing last-mile delivery infrastructure.</p>
         </div>
-        <div class="card-action">Initialize →</div>
+        <div class="card-action">
+          <span>Initialize →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">TECH</span>
+        </div>
       </div>
 
       <!-- 5. EDPLUS -->
-      <div class="card col-4 edplus-card" role="button" tabindex="0" data-portal="edplus">
+      <div class="card col-4 edplus-card" role="button" tabindex="0" data-portal="edplus" aria-label="Open EdPlus portal">
         <div class="card-glow"></div>
         <div class="edplus-wave"></div>
         <div class="card-meta">EDTECH <span class="badge">BUILDING</span></div>
@@ -599,11 +755,14 @@
           <h2 class="title-tech">EdPlus</h2>
           <p>Adaptive learning platforms for the post-mobile workforce.</p>
         </div>
-        <div class="card-action">Open Syllabus →</div>
+        <div class="card-action">
+          <span>Open Syllabus →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">EDTECH</span>
+        </div>
       </div>
 
       <!-- 6. PROJECT AURA -->
-      <div class="card col-4 aura-card" role="button" tabindex="0" data-portal="aura">
+      <div class="card col-4 aura-card" role="button" tabindex="0" data-portal="aura" aria-label="Open Project Aura portal">
         <div class="card-glow"></div>
         <div class="aura-glow"></div>
         <div class="card-meta">HARDWARE <span class="badge">STEALTH</span></div>
@@ -611,11 +770,14 @@
           <h2 class="title-stealth">Project Aura</h2>
           <p>Next-gen consumer application <span class="redacted">xxxxxx</span> mechanism. Redefining precision.</p>
         </div>
-        <div class="card-action">Decrypt IP →</div>
+        <div class="card-action">
+          <span>Decrypt IP →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">AURA</span>
+        </div>
       </div>
 
       <!-- 7. PROJECT PULSE -->
-      <div class="card col-4 pulse-card" role="button" tabindex="0" data-portal="pulse">
+      <div class="card col-4 pulse-card" role="button" tabindex="0" data-portal="pulse" aria-label="Open Project Pulse portal">
         <div class="card-glow"></div>
         <div class="pulse-rings">
           <div class="pulse-ring"></div>
@@ -627,11 +789,14 @@
           <h2 class="title-pulse">Project Pulse</h2>
           <p>Global connection engine matched via psychographic synchronization.</p>
         </div>
-        <div class="card-action">Connect →</div>
+        <div class="card-action">
+          <span>Connect →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">PULSE</span>
+        </div>
       </div>
 
       <!-- 8. FUTURE LABS -->
-      <div class="card col-4 labs-card" role="button" tabindex="0" data-portal="labs">
+      <div class="card col-4 labs-card" role="button" tabindex="0" data-portal="labs" aria-label="Open Labs & OS portal">
         <div class="card-glow"></div>
         <div class="labs-circuit"></div>
         <div class="card-meta">R&amp;D <span class="badge">LABS</span></div>
@@ -639,327 +804,489 @@
           <h2 class="title-stealth">Labs &amp; OS</h2>
           <p>Incubating Moonshots in Agri-Tech and Core Operating Systems.</p>
         </div>
-        <div class="card-action">Execute →</div>
+        <div class="card-action">
+          <span>Execute →</span>
+          <span style="color:rgba(245,247,250,.42);letter-spacing:.14em;">LABS</span>
+        </div>
       </div>
     </div>
 
-    <footer style="margin-top: 100px; text-align: center; font-family: 'Space Mono'; font-size: 11px; color: #444; letter-spacing: 2px;">
-      GLOBAL VENTURE OPERATIONS • © <span id="year"></span> • ALL RIGHTS RESERVED
+    <!-- Partnership anchor -->
+    <div id="partnership" style="height: 1px;"></div>
+
+    <!-- Footer -->
+    <footer id="contact" class="site-footer" aria-label="Site footer">
+      <div class="footer-inner">
+        <div>
+          <h4 class="footer-title">R&amp;M</h4>
+          <div class="footer-small">© <span id="year"></span> GLOBAL VENTURE HOLDINGS</div>
+        </div>
+
+        <div>
+          <div class="footer-kicker">Locations</div>
+          <a class="footer-link" href="#">London Terminal</a>
+          <a class="footer-link" href="#">Dubai Core</a>
+          <a class="footer-link" href="#">Singapore Hub</a>
+        </div>
+
+        <div>
+          <div class="footer-kicker">Legal</div>
+          <a class="footer-link" href="#">Privacy Policy</a>
+          <a class="footer-link" href="#">Terms of Service</a>
+          <a class="footer-link" href="#">Investor Relations</a>
+        </div>
+
+        <div>
+          <div class="footer-kicker">Connect</div>
+          <a class="footer-link" href="#">LinkedIn</a>
+          <a class="footer-link" href="#">Twitter</a>
+          <div style="margin-top:18px;" class="footer-small">founders@rangandmall.com</div>
+        </div>
+      </div>
     </footer>
   </main>
 
   <!-- IMMERSIVE PORTAL -->
   <div id="portal" class="portal" aria-hidden="true">
     <canvas id="portal-canvas"></canvas>
-    <div class="p-atmosphere"></div>
+    <div class="p-atmosphere" aria-hidden="true"></div>
     <button class="p-close" id="p-close" type="button">✕ DISCONNECT</button>
 
     <div class="portal-content" role="dialog" aria-modal="true" aria-labelledby="p-title" aria-describedby="p-desc">
       <span class="p-tag" id="p-tag"></span>
       <h1 class="p-title" id="p-title"></h1>
       <div class="p-desc" id="p-desc"></div>
-      <div><a href="#" class="p-btn" id="p-btn">Initiate Partnership</a></div>
+
+      <div class="p-actions">
+        <a href="#" class="p-btn primary" id="p-btn">INITIATE</a>
+        <button class="p-btn" id="p-copy" type="button">COPY LINK</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // ========= BASIC =========
-    document.getElementById("year").textContent = new Date().getFullYear();
+    (() => {
+      "use strict";
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      // ========= BASIC =========
+      document.getElementById("year").textContent = new Date().getFullYear();
+      const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
 
-    // ========= MOUSE GLOW (PERF-SAFE) =========
-    const grid = document.getElementById('main-grid');
-    let raf = null;
-    let lastEvent = null;
+      // ========= POINTER GLOW (PERF-SAFE) =========
+      const grid = document.getElementById("main-grid");
+      let glowRAF = 0;
+      let lastMove = null;
 
-    grid.addEventListener('mousemove', (e) => {
-      lastEvent = e;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        const card = lastEvent.target.closest('.card');
-        if (!card) return;
-        const rect = card.getBoundingClientRect();
-        card.style.setProperty('--x', `${lastEvent.clientX - rect.left}px`);
-        card.style.setProperty('--y', `${lastEvent.clientY - rect.top}px`);
-      });
-    });
+      grid.addEventListener("mousemove", (e) => {
+        lastMove = e;
+        if (glowRAF) return;
+        glowRAF = requestAnimationFrame(() => {
+          glowRAF = 0;
+          const card = lastMove?.target?.closest?.(".card");
+          if (!card) return;
+          const rect = card.getBoundingClientRect();
+          const x = ((lastMove.clientX - rect.left) / rect.width) * 100;
+          const y = ((lastMove.clientY - rect.top) / rect.height) * 100;
+          card.style.setProperty("--x", x.toFixed(2) + "%");
+          card.style.setProperty("--y", y.toFixed(2) + "%");
+        });
+      }, { passive: true });
 
-    // ========= PORTAL DATA =========
-    const portalData = {
-      nature: {
-        title: "The Sanctuary",
-        tag: "PASSPORT TO NATURE",
-        desc: "<strong>Feel the Life Inside.</strong> A mesmerizing architectural ecosystem where gravity-fed waterfalls flow beside luxury villas. Wake up to the chirping of small swallows and the mist of the forest. Sustainable, gated, and completely integrated into the wild.",
-        theme: "theme-nature",
-        type: "nature"
-      },
-      rental: {
-        title: "Rental Communities",
-        tag: "GLOBAL LEDGER",
-        desc: "A high-end financial environment for US and Global real estate. Automating the lifecycle of tenant management through a secure, banking-grade interface.",
-        theme: "theme-rental",
-        type: "data"
-      },
-      digitailor: {
-        title: "Digitailor",
-        tag: "AI CAREER AGENT",
-        desc: "The precision of a master tailor applied to professional identity. Our AI agents reconstruct resumes in real-time to ensure absolute compatibility with top-tier hiring algorithms.",
-        theme: "theme-hr",
-        type: "scan"
-      },
-      gulgul: {
-        title: "Gulgul Logistics",
-        tag: "DENSITY AI",
-        desc: "Redefining the movement of atoms. Gulgul uses proprietary AI to bundle last-mile deliveries based on density clusters, reducing carbon and fuel waste by 40%.",
-        theme: "theme-tech",
-        type: "dots"
-      },
-      edplus: {
-        title: "EdPlus",
-        tag: "ADAPTIVE LEARNING",
-        desc: "Bridging the gap between curriculum and industry. EdPlus is an adaptive learning engine that modifies course content in real-time based on learner mastery.",
-        theme: "theme-tech",
-        type: "data"
-      },
-      aura: {
-        title: "Project Aura",
-        tag: "CLASSIFIED R&D",
-        desc: "A next-generation solid-state application protocol for cosmetics. Zero-waste precision. The mechanism remains <span class='redacted'>[REDACTED]</span> until partnership vetting.",
-        theme: "theme-stealth",
-        type: "mist"
-      },
-      pulse: {
-        title: "Project Pulse",
-        tag: "SOCIAL GRAPH",
-        desc: "Human connection beyond the superficial. Pulse matches the global population through deep psychographic and value alignment.",
-        theme: "theme-pulse",
-        type: "pulse"
-      },
-      labs: {
-        title: "Future Labs",
-        tag: "MOONSHOTS",
-        desc: "<strong>Project Harvest:</strong> Agri-tech sensor networks.<br><strong>Core OS:</strong> The next operating system paradigm for the post-mobile hardware era.",
-        theme: "theme-stealth",
-        type: "dots"
+      // ========= PORTAL DATA =========
+      const portalData = {
+        nature: {
+          key: "nature",
+          title: "The Sanctuary",
+          tag: "PASSPORT TO NATURE",
+          desc: "<strong>Feel the Life Inside.</strong> A mesmerizing architectural ecosystem where gravity-fed waterfalls flow beside luxury villas. Wake up to the chirping of small swallows and the mist of the forest. Sustainable, gated, and completely integrated into the wild.",
+          theme: "theme-nature",
+          type: "nature"
+        },
+        rental: {
+          key: "rental",
+          title: "Rental Communities",
+          tag: "GLOBAL LEDGER",
+          desc: "A high-end financial environment for US and Global real estate. Automating the lifecycle of tenant management through a secure, banking-grade interface.",
+          theme: "theme-rental",
+          type: "data"
+        },
+        digitailor: {
+          key: "digitailor",
+          title: "Digitailor",
+          tag: "AI CAREER AGENT",
+          desc: "The precision of a master tailor applied to professional identity. Our AI agents reconstruct resumes in real-time to ensure absolute compatibility with top-tier hiring algorithms.",
+          theme: "theme-hr",
+          type: "scan"
+        },
+        gulgul: {
+          key: "gulgul",
+          title: "Gulgul Logistics",
+          tag: "DENSITY AI",
+          desc: "Redefining the movement of atoms. Gulgul uses proprietary AI to bundle last-mile deliveries based on density clusters, reducing carbon and fuel waste by 40%.",
+          theme: "theme-tech",
+          type: "dots"
+        },
+        edplus: {
+          key: "edplus",
+          title: "EdPlus",
+          tag: "ADAPTIVE LEARNING",
+          desc: "Bridging the gap between curriculum and industry. EdPlus is an adaptive learning engine that modifies course content in real-time based on learner mastery.",
+          theme: "theme-tech",
+          type: "data"
+        },
+        aura: {
+          key: "aura",
+          title: "Project Aura",
+          tag: "CLASSIFIED R&D",
+          desc: "A next-generation solid-state application protocol for cosmetics. Zero-waste precision. The mechanism remains <span class='redacted'>[REDACTED]</span> until partnership vetting.",
+          theme: "theme-stealth",
+          type: "mist"
+        },
+        pulse: {
+          key: "pulse",
+          title: "Project Pulse",
+          tag: "SOCIAL GRAPH",
+          desc: "Human connection beyond the superficial. Pulse matches the global population through deep psychographic and value alignment.",
+          theme: "theme-pulse",
+          type: "pulse"
+        },
+        labs: {
+          key: "labs",
+          title: "Future Labs",
+          tag: "MOONSHOTS",
+          desc: "<strong>Project Harvest:</strong> Agri-tech sensor networks.<br><strong>Core OS:</strong> The next operating system paradigm for the post-mobile hardware era.",
+          theme: "theme-stealth",
+          type: "dots"
+        }
+      };
+
+      // ========= CANVAS PARTICLES =========
+      const canvas = document.getElementById("portal-canvas");
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      let particles = [];
+      let animationId = null;
+      let activeType = "dots";
+
+      function resize() {
+        const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-    };
+      window.addEventListener("resize", resize, { passive: true });
+      resize();
 
-    // ========= CANVAS PARTICLES =========
-    const canvas = document.getElementById('portal-canvas');
-    const ctx = canvas.getContext('2d', { alpha: true });
+      class Particle {
+        constructor(type) {
+          this.type = type;
+          this.reset();
+        }
+        reset() {
+          this.x = Math.random() * window.innerWidth;
+          this.y = Math.random() * window.innerHeight;
+          this.size = Math.random() * 2 + 1;
+          this.speedX = (Math.random() - 0.5) * 1.2;
+          this.speedY = (Math.random() - 0.5) * 1.2;
+          this.alpha = Math.random() * 0.45 + 0.05;
 
-    let particles = [];
-    let animationId = null;
+          if (this.type === "nature") {
+            this.x = (Math.random() * 80) + (window.innerWidth * 0.1);
+            this.y = -20;
+            this.speedY = Math.random() * 7 + 6;
+            this.speedX = (Math.random() - 0.5) * 1.5;
+            this.size = Math.random() * 2 + 1;
+            this.alpha = Math.random() * 0.35 + 0.1;
+          }
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resize);
-    resize();
+          if (this.type === "scan") {
+            this.y = -80;
+            this.speedY = 10;
+            this.speedX = 0;
+            this.size = 1;
+            this.alpha = 0.22;
+          }
 
-    class Particle {
-      constructor(type) {
-        this.type = type;
-        this.init();
-      }
-      init() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = (Math.random() - 0.5) * 1;
-        this.speedY = (Math.random() - 0.5) * 1;
-        this.alpha = Math.random() * 0.5;
+          if (this.type === "pulse") {
+            this.size = Math.random() * 2.5 + 1;
+            this.alpha = Math.random() * 0.30 + 0.08;
+            this.speedX = (Math.random() - 0.5) * 0.8;
+            this.speedY = (Math.random() - 0.5) * 0.8;
+          }
 
-        if (this.type === "nature") {
-          this.x = (Math.random() * 80) + (canvas.width * 0.1);
-          this.y = -20;
-          this.speedY = Math.random() * 15 + 10;
-          this.speedX = (Math.random() - 0.5) * 2;
+          if (this.type === "mist") {
+            this.size = Math.random() * 3.5 + 2;
+            this.alpha = Math.random() * 0.18 + 0.04;
+            this.speedX = (Math.random() - 0.5) * 0.35;
+            this.speedY = (Math.random() - 0.5) * 0.35;
+          }
+
+          if (this.type === "data") {
+            this.size = 1;
+            this.alpha = Math.random() * 0.25 + 0.05;
+            this.speedX = 0;
+            this.speedY = Math.random() * 2 + 1.5;
+          }
         }
 
-        if (this.type === "birds") {
-          this.x = -50;
-          this.y = Math.random() * (canvas.height * 0.4);
-          this.speedX = Math.random() * 2 + 2;
-          this.speedY = Math.sin(this.x * 0.01) * 1;
-          this.size = 2;
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+
+          if (this.type === "scan") {
+            if (this.y > h + 80) this.reset();
+            return;
+          }
+
+          if (this.type === "data") {
+            if (this.y > h + 40) this.reset();
+            return;
+          }
+
+          if (this.x > w + 80 || this.x < -80 || this.y > h + 80 || this.y < -80) {
+            this.reset();
+          }
         }
 
-        if (this.type === "scan") {
-          this.y = -50;
-          this.speedY = 12;
-          this.speedX = 0;
-          this.size = 1;
-          this.alpha = 0.22;
-        }
-      }
+        draw() {
+          if (this.type === "scan") {
+            ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+            ctx.fillRect(0, this.y, window.innerWidth, 1);
+            return;
+          }
 
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+          if (this.type === "data") {
+            ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+            ctx.fillRect(0, this.y, window.innerWidth, 1);
+            return;
+          }
 
-        if (
-          this.y > canvas.height + 50 ||
-          this.x > canvas.width + 50 ||
-          this.x < -100 ||
-          this.y < -100
-        ) {
-          this.init();
-        }
-      }
-
-      draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-
-        if (this.type === "birds") {
           ctx.beginPath();
+
+          // tint per type (still subtle)
+          let col = `rgba(255,255,255,${this.alpha})`;
+          if (this.type === "pulse") col = `rgba(244,63,94,${this.alpha})`;
+          if (this.type === "mist") col = `rgba(168,85,247,${this.alpha})`;
+          if (this.type === "nature") col = `rgba(16,185,129,${this.alpha})`;
+
+          ctx.fillStyle = col;
           ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
           ctx.fill();
-          return;
         }
-
-        if (this.type === "scan") {
-          ctx.fillRect(0, this.y, canvas.width, 1);
-          return;
-        }
-
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function animate() {
-      if (reducedMotion) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const p of particles) {
-        p.update();
-        p.draw();
       }
 
-      animationId = requestAnimationFrame(animate);
-    }
+      function buildParticles(type) {
+        activeType = type || "dots";
+        particles = [];
 
-    function stopAnimation() {
-      if (animationId) cancelAnimationFrame(animationId);
-      animationId = null;
-    }
+        if (reducedMotion) return;
 
-    // ========= PORTAL OPEN/CLOSE + ACCESSIBILITY =========
-    const portal = document.getElementById('portal');
-    const closeBtn = document.getElementById('p-close');
+        let count = 90;
+        if (activeType === "nature") count = 110;
+        if (activeType === "scan") count = 22;
+        if (activeType === "pulse") count = 120;
+        if (activeType === "mist") count = 80;
+        if (activeType === "data") count = 26;
+        if (activeType === "dots") count = 100;
 
-    let lastFocusedEl = null;
-
-    function focusTrap(e) {
-      if (!portal.classList.contains('active')) return;
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        exitPortal();
-        return;
+        for (let i = 0; i < count; i++) particles.push(new Particle(activeType));
       }
 
-      if (e.key !== 'Tab') return;
-
-      const focusables = portal.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
-      const list = Array.from(focusables).filter(el => !el.hasAttribute('disabled'));
-      if (list.length === 0) return;
-
-      const first = list[0];
-      const last = list[list.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
+      function animate() {
+        if (reducedMotion) return;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        for (const p of particles) { p.update(); p.draw(); }
+        animationId = requestAnimationFrame(animate);
       }
-    }
 
-    document.addEventListener('keydown', focusTrap);
+      function startAnimation() {
+        if (reducedMotion) return;
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = requestAnimationFrame(animate);
+      }
 
-    function syncUrl(key) {
-      const url = new URL(window.location);
-      if (key) url.searchParams.set('venture', key);
-      else url.searchParams.delete('venture');
-      history.replaceState({}, '', url);
-    }
+      function stopAnimation() {
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = null;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
 
-    function enterPortal(key) {
-      const data = portalData[key];
-      if (!data) return;
+      // ========= PORTAL OPEN/CLOSE + ACCESSIBILITY =========
+      const portal = document.getElementById("portal");
+      const closeBtn = document.getElementById("p-close");
+      const pTag = document.getElementById("p-tag");
+      const pTitle = document.getElementById("p-title");
+      const pDesc = document.getElementById("p-desc");
+      const pBtn = document.getElementById("p-btn");
+      const pCopy = document.getElementById("p-copy");
 
-      lastFocusedEl = document.activeElement;
+      let lastFocusedEl = null;
 
-      portal.className = 'portal active ' + data.theme;
-      portal.setAttribute('aria-hidden', 'false');
+      function setUrlVenture(key) {
+        const url = new URL(window.location.href);
+        if (key) url.searchParams.set("venture", key);
+        else url.searchParams.delete("venture");
+        history.replaceState({}, "", url);
+      }
 
-      document.getElementById('p-tag').textContent = data.tag;
-      document.getElementById('p-title').textContent = data.title;
-      document.getElementById('p-desc').innerHTML = data.desc;
+      function getUrlVenture() {
+        try { return new URL(window.location.href).searchParams.get("venture"); }
+        catch { return null; }
+      }
 
-      document.getElementById('p-btn').href = `mailto:founders@rangandmall.com?subject=Inquiry: ${encodeURIComponent(data.title)}`;
+      function setPortalTheme(themeClass) {
+        portal.classList.remove("theme-nature", "theme-tech", "theme-stealth", "theme-pulse", "theme-rental", "theme-hr");
+        if (themeClass) portal.classList.add(themeClass);
+      }
 
-      particles = [];
-      if (!reducedMotion) {
-        if (data.type === 'nature') {
-          for (let i = 0; i < 150; i++) particles.push(new Particle('nature'));
-          for (let i = 0; i < 8; i++) particles.push(new Particle('birds'));
-        } else if (data.type === 'scan') {
-          particles.push(new Particle('scan'));
-        } else {
-          for (let i = 0; i < 100; i++) particles.push(new Particle('dots'));
-        }
+      function openPortal(key, cx, cy) {
+        const data = portalData[key];
+        if (!data) return;
+
+        lastFocusedEl = document.activeElement;
+
+        // set vignette origin
+        const x = (typeof cx === "number" ? cx : window.innerWidth * 0.55);
+        const y = (typeof cy === "number" ? cy : window.innerHeight * 0.35);
+        document.documentElement.style.setProperty("--cx", x + "px");
+        document.documentElement.style.setProperty("--cy", y + "px");
+
+        setPortalTheme(data.theme);
+
+        pTag.textContent = data.tag;
+        pTitle.textContent = data.title;
+        pDesc.innerHTML = data.desc;
+
+        // Primary CTA
+        pBtn.href = `mailto:founders@rangandmall.com?subject=${encodeURIComponent("Inquiry: " + data.title)}`;
+        pBtn.setAttribute("aria-label", `Initiate inquiry for ${data.title}`);
+
+        // Activate
+        portal.classList.add("active");
+        portal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("portal-active");
+        setUrlVenture(data.key);
+
+        // Particles
+        buildParticles(data.type);
+        startAnimation();
+
+        // focus
+        closeBtn.focus();
+      }
+
+      function closePortal() {
+        portal.classList.remove("active");
+        portal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("portal-active");
+        setPortalTheme(null);
+
         stopAnimation();
-        animate();
+        setUrlVenture(null);
+
+        if (lastFocusedEl && typeof lastFocusedEl.focus === "function") lastFocusedEl.focus();
       }
 
-      document.body.classList.add('portal-active');
-      syncUrl(key);
+      function trapFocus(e) {
+        if (!portal.classList.contains("active")) return;
 
-      closeBtn.focus();
-    }
-
-    function exitPortal() {
-      portal.className = 'portal';
-      portal.classList.remove('active');
-      portal.setAttribute('aria-hidden', 'true');
-
-      document.body.classList.remove('portal-active');
-      stopAnimation();
-
-      syncUrl(null);
-
-      if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
-        lastFocusedEl.focus();
-      }
-    }
-
-    closeBtn.addEventListener('click', exitPortal);
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stopAnimation();
-      else if (portal.classList.contains('active')) animate();
-    });
-
-    document.querySelectorAll('.card[data-portal]').forEach(card => {
-      card.addEventListener('click', () => enterPortal(card.dataset.portal));
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (e.key === "Escape") {
           e.preventDefault();
-          enterPortal(card.dataset.portal);
+          closePortal();
+          return;
         }
-      });
-    });
 
-    const initial = new URL(window.location).searchParams.get('venture');
-    if (initial) enterPortal(initial);
+        if (e.key !== "Tab") return;
+
+        const focusables = portal.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
+        const list = Array.from(focusables).filter(el => !el.hasAttribute("disabled"));
+        if (!list.length) return;
+
+        const first = list[0];
+        const last = list[list.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+      document.addEventListener("keydown", trapFocus);
+
+      async function copyDeepLink() {
+        const key = getUrlVenture();
+        const url = new URL(window.location.href);
+        if (!key) url.searchParams.delete("venture");
+        const text = url.toString();
+
+        try {
+          await navigator.clipboard.writeText(text);
+          pCopy.textContent = "COPIED";
+          setTimeout(() => (pCopy.textContent = "COPY LINK"), 900);
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); } catch {}
+          ta.remove();
+          pCopy.textContent = "COPIED";
+          setTimeout(() => (pCopy.textContent = "COPY LINK"), 900);
+        }
+      }
+
+      // ========= WIRE UP TILES (FIX: they now open) =========
+      function attachTileHandlers() {
+        const cards = document.querySelectorAll(".card[data-portal]");
+        for (const card of cards) {
+          const key = card.getAttribute("data-portal");
+
+          const openFromEvent = (e) => {
+            const r = card.getBoundingClientRect();
+            const cx = (e && typeof e.clientX === "number") ? e.clientX : (r.left + r.width / 2);
+            const cy = (e && typeof e.clientY === "number") ? e.clientY : (r.top + r.height / 2);
+            openPortal(key, cx, cy);
+          };
+
+          card.addEventListener("click", openFromEvent);
+
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openFromEvent(null);
+            }
+          });
+        }
+      }
+
+      // Close actions
+      closeBtn.addEventListener("click", closePortal);
+      pCopy.addEventListener("click", copyDeepLink);
+
+      // Click outside content to close (simple backdrop behavior)
+      portal.addEventListener("click", (e) => {
+        // only if they click the empty shell / canvas area (not inside controls/text)
+        const content = document.querySelector(".portal-content");
+        if (!content) return;
+        if (!content.contains(e.target) && e.target !== closeBtn) closePortal();
+      });
+
+      // ========= INIT =========
+      attachTileHandlers();
+
+      // Deep link open
+      const initial = getUrlVenture();
+      if (initial && portalData[initial]) {
+        openPortal(initial, window.innerWidth * 0.55, window.innerHeight * 0.35);
+      }
+    })();
   </script>
 </body>
 </html>
