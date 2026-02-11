@@ -1,26 +1,10 @@
-import Page from "@/components/Page";
-import Card from "@/components/Card";
-import Link from "next/link";
-
-export default function Workspace() {
+export default function WorkspaceHome() {
   return (
-    <Page
-      title="Workspace"
-      description="Internal operating system for execution and collaboration."
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-        <Link href="/workspace/docs">
-          <Card title="Docs" />
-        </Link>
-
-        <Link href="/workspace/chat">
-          <Card title="Chat" />
-        </Link>
-
-        <Link href="/workspace/projects">
-          <Card title="Projects" />
-        </Link>
-      </div>
-    </Page>
+    <div>
+      <h1 className="text-3xl font-semibold mb-6">Workspace</h1>
+      <p className="text-gray-600">
+        Internal collaboration and operational tools.
+      </p>
+    </div>
   );
 }

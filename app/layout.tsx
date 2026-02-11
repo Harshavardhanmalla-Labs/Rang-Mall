@@ -1,6 +1,11 @@
 import "./globals.css";
-import Header from "@/components/Header";
-import AppLauncher from "@/components/AppLauncher";
+import Header from "@/components/navigation/Header";
+import Footer from "@/components/navigation/Footer";
+
+export const metadata = {
+  title: "FreedomLabs Ecosystem",
+  description: "Unified digital ecosystem by FreedomLabs",
+};
 
 export default function RootLayout({
   children,
@@ -9,10 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-[#0B0F17] text-[#E6EAF0] antialiased">
+      <body className="bg-white text-gray-900 antialiased">
         <Header />
-        <AppLauncher />
-        <div className="max-w-7xl mx-auto px-12">{children}</div>
+        <main className="min-h-screen">{children}</main>
+        <Footer />
       </body>
     </html>
   );
