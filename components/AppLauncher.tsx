@@ -2,25 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import {
   LayoutGrid,
   Home,
   Building2,
   Hammer,
   Utensils,
-  Folder,
   FileText,
   MessageSquare,
-  Layers,
+  Folder,
   Flame,
 } from "lucide-react";
-
-/*
-  =============================================
-  RANG & MALL — GLOBAL APP LAUNCHER
-  =============================================
-*/
 
 const apps = [
   {
@@ -69,56 +61,41 @@ export default function AppLauncher() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // ESC closes
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
+    const esc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
   }, []);
 
-  // Outside click closes
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        panelRef.current &&
-        !panelRef.current.contains(event.target as Node)
-      ) {
+    const outside = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    if (open) document.addEventListener("mousedown", outside);
+    return () => document.removeEventListener("mousedown", outside);
   }, [open]);
 
   return (
     <>
-      {/* Launcher Button */}
       <motion.button
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.05 }}
         onClick={() => setOpen(!open)}
         className="fixed top-6 left-6 z-50
-                   w-12 h-12
-                   rounded-2xl
-                   bg-white/10 backdrop-blur
-                   border border-white/10
-                   flex items-center justify-center
-                   hover:bg-white/20
-                   transition"
+                   w-10 h-10 rounded-xl
+                   bg-[#121722]
+                   border border-white/5
+                   flex items-center justify-center"
       >
-        <LayoutGrid size={20} />
+        <LayoutGrid size={18} />
       </motion.button>
 
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.3 }}
@@ -126,23 +103,18 @@ export default function AppLauncher() {
               className="fixed inset-0 bg-black z-40"
             />
 
-            {/* Panel */}
             <motion.div
               ref={panelRef}
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              exit={{ opacity: 0, y: -8 }}
               className="fixed top-20 left-6 z-50
-                         w-[360px]
-                         p-8
-                         rounded-3xl
-                         bg-white/5
-                         backdrop-blur-2xl
-                         border border-white/10
-                         shadow-2xl"
+                         w-[320px] p-8
+                         rounded-2xl
+                         bg-[#121722]
+                         border border-white/5"
             >
-              <div className="grid grid-cols-3 gap-8">
+              <div className="grid grid-cols-3 gap-6">
                 {apps.map((app) => {
                   const Icon = app.icon;
                   return (
@@ -151,21 +123,17 @@ export default function AppLauncher() {
                       href={app.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex flex-col items-center text-center"
+                      className="flex flex-col items-center text-center"
                       onClick={() => setOpen(false)}
                     >
-                      <motion.div
-                        whileHover={{ y: -4 }}
-                        className="w-14 h-14 rounded-2xl
-                                   bg-white/10
-                                   flex items-center justify-center
-                                   group-hover:bg-white/20
-                                   transition"
+                      <div
+                        className="w-12 h-12 rounded-xl
+                                      bg-[#1A2030]
+                                      flex items-center justify-center"
                       >
-                        <Icon size={20} />
-                      </motion.div>
-
-                      <span className="mt-3 text-xs text-[#9AA4BF]">
+                        <Icon size={18} />
+                      </div>
+                      <span className="mt-2 text-xs text-[#9AA4BF]">
                         {app.name}
                       </span>
                     </a>

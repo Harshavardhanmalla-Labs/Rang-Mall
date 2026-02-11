@@ -1,25 +1,39 @@
-import Ecosystem from "@/components/Ecosystem";
-import Philosophy from "@/components/Philosophy";
+import Page from "@/components/Page";
+import Card from "@/components/Card";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="bg-[#0A0D14] text-[#E8EBF2]">
-      {/* HERO */}
-      <section className="h-screen flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent blur-3xl animate-pulse" />
-        <div className="text-center z-10">
-          <h1 className="text-[92px] font-medium tracking-tight">
-            Rang & Mall
-          </h1>
-          <p className="mt-10 text-[30px] text-[#9AA4BF] max-w-4xl mx-auto">
-            An operating company building and owning systems across AI,
-            infrastructure, and consumer platforms.
-          </p>
-        </div>
-      </section>
+    <Page
+      title="Rang & Mall"
+      description="An operating company building and owning systems across infrastructure, AI, and consumer platforms."
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <Link href="https://isdwell.com">
+          <Card title="Dwell USA" description="Multifamily leasing platform" />
+        </Link>
 
-      <Ecosystem />
-      <Philosophy />
-    </main>
+        <Link href="https://isdwell.in">
+          <Card
+            title="Dwell India"
+            description="Owner-first property network"
+          />
+        </Link>
+
+        <Link href="https://builderstudio.freedomlabs.in">
+          <Card
+            title="Builder Studio"
+            description="Construction & contractor platform"
+          />
+        </Link>
+
+        <Link href="https://forge.freedomlabs.in">
+          <Card
+            title="FreedomLabs Forge"
+            description="Execution & project engine"
+          />
+        </Link>
+      </div>
+    </Page>
   );
 }
